@@ -3,13 +3,17 @@
 ## Example
 
 ```go
+import audio "github.com/AlmightyFloppyFish/highlevel-discordgo-opus"
+
+-- snip --
+
 manage := make(chan audio.AudioAction)
 vc, err := audio.JoinUserVoiceChannel(m.Author.ID, s)
 if err != nil {
-    fmt.Println(err)
+    // Handle
 }
 if err := audio.AudioFromYoutubeLink("https://www.youtube.com/watch?v=GX8Hg6kWQYI", vc, manage); err != nil {
-    fmt.Println(err)
+    // Handle
 }
 
 time.Sleep(4 * time.Second)
