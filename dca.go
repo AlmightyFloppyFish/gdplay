@@ -14,11 +14,11 @@ func defaultStreamSettings() *dca.EncodeOptions {
 		Bitrate:       96,
 		// Should be LowDelay?
 		Application:      dca.AudioApplicationAudio,
-		CompressionLevel: 0,
+		CompressionLevel: 5,
 		PacketLoss:       1,
 		BufferedFrames:   200,
 		VBR:              true,
-		Threads:          4,
+		Threads:          2,
 	}
 }
 
