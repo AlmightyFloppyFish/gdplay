@@ -58,7 +58,7 @@ func AudioFromYoutubeLink(src string, voice *discordgo.VoiceConnection, manage c
 
 // AudioFromYoutubeSearch query's youtube for link
 // and starts stream of the video from the top search
-func AudioFromYoutubeSearch(search string, voice *discordgo.VoiceConnection, manage chan AudioAction) {
+func AudioFromYoutubeSearch(search string, voice *discordgo.VoiceConnection, manage chan AudioAction) error {
 	vids := GetVideosFromSearch(search)
-	vids[0].Play(voice, manage)
+	return vids[0].Play(voice, manage)
 }
