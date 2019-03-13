@@ -6,7 +6,7 @@ import (
 	"github.com/jonas747/dca"
 )
 
-const debug = true
+const debug = false
 
 func defaultStreamSettings() *dca.EncodeOptions {
 	return &dca.EncodeOptions{
