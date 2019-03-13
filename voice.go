@@ -1,4 +1,4 @@
-package hldiscordopus
+package gdplay
 
 import (
 	"fmt"

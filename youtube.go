@@ -1,4 +1,4 @@
-package hldiscordopus
+package gdplay
 
 import (
 	"fmt"
@@ -19,8 +19,9 @@ type YoutubeLink struct {
 	stream      io.Reader
 }
 
-func (link YoutubeLink) Play(voice *discordgo.VoiceConnection, manage chan AudioAction) error {
-	return AudioFromRaw(link.stream, voice, manage)
+// Play audio from the youtube link
+func (link YoutubeLink) Play(voice *discordgo.VoiceConnection) (*AudioSession, error) {
+	return AudioFromRaw(link.stream, voice)
 }
 
 // DCA has some issues finding the stream by itself
@@ -38,7 +39,10 @@ func ytCompatibleStreamFrom(v *ytdl.VideoInfo) (io.Reader, error) {
 	return resp.Body, nil
 }
 
-// GetVideosFromSearch
+// GetVideosFromSearch gives an array of videos, which you can manage and then call .Play() on
+// WARNING: This method of searching can be quite slow. Reason being that I'm avoiding using the youtube API so
+// you don't have to add an API key, if you want better speed then get a developer key and use something like
+// godoc.org/google.golang.org/api/youtube/v3, then give the youtube link to AudioFromYoutubeLink
 func GetVideosFromSearch(search string) []YoutubeLink {
 	IDs, err := getVideoIDsFromSearch(search, 1)
 	if err != nil {

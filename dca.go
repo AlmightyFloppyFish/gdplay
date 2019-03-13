@@ -1,8 +1,8 @@
-package hldiscordopus
+package gdplay
 
 import (
 	"fmt"
-	"github.com/bwmarrin/discordgo"
+	// "github.com/bwmarrin/discordgo"
 	"github.com/jonas747/dca"
 )
 
@@ -25,18 +25,12 @@ func defaultStreamSettings() *dca.EncodeOptions {
 	}
 }
 
-type dcaSession struct {
-	dca    *dca.EncodeSession
-	manage chan AudioAction
-	voicec *discordgo.VoiceConnection
-}
-
-func (s *dcaSession) playFromDCA() {
+func (s *AudioSession) playFromDCA() {
 	// options are already set in above scope
-	defer s.dca.Cleanup()
+	defer s.dcaSession.Cleanup()
 
 	streamNaturalEnd := make(chan error)
-	dcaStream := dca.NewStream(s.dca, s.voicec, streamNaturalEnd)
+	dcaStream := dca.NewStream(s.dcaSession, s.Vc, streamNaturalEnd)
 
 	for {
 		select {
@@ -44,18 +38,24 @@ func (s *dcaSession) playFromDCA() {
 			if debug {
 				fmt.Println(e)
 			}
-			s.dca.Stop()
-			s.dca.Cleanup()
+			s.dcaSession.Stop()
+			s.dcaSession.Cleanup()
+			s.IsPlaying = false
+			return
 
 		case action := <-s.manage:
 			switch action {
-			case AudioPause:
+			case audioPause:
 				dcaStream.SetPaused(true)
-			case AudioResume:
+				s.IsPaused = true
+			case audioResume:
 				dcaStream.SetPaused(false)
-			case AudioStop:
-				s.dca.Stop()
-				s.dca.Cleanup()
+				s.IsPaused = false
+			case audioStop:
+				s.dcaSession.Stop()
+				s.dcaSession.Cleanup()
+				s.IsPlaying = false
+				return
 			}
 		}
 	}
