@@ -83,8 +83,11 @@ func onMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 		session, playError = gdplay.AudioFromFile("assets/oof.mp3", vc)
-		defer session.Vc.Disconnect()
-		defer session.Vc.Close()
+
+		session.Wait()
+		session.Vc.Disconnect()
+		session.Vc.Close()
+		return
 	}
 	if playError != nil {
 		s.ChannelMessageSend(m.ChannelID, "Failed to play audio: "+playError.Error())

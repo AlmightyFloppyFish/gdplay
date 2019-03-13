@@ -1,5 +1,9 @@
 package gdplay
 
+import (
+	"time"
+)
+
 // audioAction is a Signal for a manage channel
 type audioAction int
 
@@ -9,6 +13,17 @@ const (
 	audioPause
 	audioResume
 )
+
+// Wait untill playing is stopped or completed
+func (s *AudioSession) Wait() {
+	for {
+		time.Sleep(300 * time.Millisecond)
+		if s.IsPlaying {
+			continue
+		}
+		return
+	}
+}
 
 // Stop playing and optionally disconnect
 func (s *AudioSession) Stop(disconnect bool) {
