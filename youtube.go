@@ -5,6 +5,8 @@ import (
 	yts "github.com/KeluDiao/gotube/api"
 	"github.com/bwmarrin/discordgo"
 	"github.com/rylio/ytdl"
+	"io"
+	"net/http"
 	"time"
 )
 
@@ -14,20 +16,26 @@ type YoutubeLink struct {
 	Author      string
 	Description string
 	Duration    time.Duration
-	link        string
+	stream      io.Reader
 }
 
 func (link YoutubeLink) Play(voice *discordgo.VoiceConnection, manage chan AudioAction) error {
-	return AudioFromYoutubeLink(link.link, voice, manage)
+	return AudioFromRaw(link.stream, voice, manage)
 }
 
-func ytCompatibleLinkFrom(v *ytdl.VideoInfo) (string, error) {
+// DCA has some issues finding the stream by itself
+func ytCompatibleStreamFrom(v *ytdl.VideoInfo) (io.Reader, error) {
 	format := v.Formats.Extremes(ytdl.FormatAudioBitrateKey, true)[0]
 	downloadURL, err := v.GetDownloadURL(format)
 	if err != nil {
-		return "", fmt.Errorf("Unable to get direct audio stream link from youtube for '%s': %s ", v.Title, err.Error())
+		return nil, fmt.Errorf("Unable to get direct audio stream link from youtube for '%s': %s ", v.Title, err.Error())
 	}
-	return downloadURL.String(), nil
+
+	resp, err := http.Get(downloadURL.String())
+	if err != nil {
+		return nil, err
+	}
+	return resp.Body, nil
 }
 
 // GetVideosFromSearch
@@ -45,14 +53,17 @@ func GetVideosFromSearch(search string) []YoutubeLink {
 			fmt.Println(err)
 		}
 
-		comp, _ := ytCompatibleLinkFrom(r)
+		reader, err := ytCompatibleStreamFrom(r)
+		if err != nil && debug {
+			fmt.Println(err)
+		}
 
 		videoInfos[i] = YoutubeLink{
 			Title:       r.Title,
 			Author:      r.Author,
 			Description: r.Description,
 			Duration:    r.Duration,
-			link:        comp,
+			stream:      reader,
 		}
 	}
 	return videoInfos

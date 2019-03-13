@@ -48,11 +48,12 @@ func AudioFromYoutubeLink(src string, voice *discordgo.VoiceConnection, manage c
 		return fmt.Errorf("Unable to get youtube info from '%s': %s ", src, err.Error())
 	}
 
-	link, err := ytCompatibleLinkFrom(videoInfo)
+	reader, err := ytCompatibleStreamFrom(videoInfo)
 	if err != nil {
 		return err
 	}
-	return AudioFromFile(link, voice, manage)
+	// return AudioFromFile(link, voice, manage)
+	return AudioFromRaw(reader, voice, manage)
 }
 
 // AudioFromYoutubeSearch query's youtube for link

@@ -1,9 +1,12 @@
 package hldiscordopus
 
 import (
+	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/jonas747/dca"
 )
+
+const debug = true
 
 func defaultStreamSettings() *dca.EncodeOptions {
 	return &dca.EncodeOptions{
@@ -14,11 +17,11 @@ func defaultStreamSettings() *dca.EncodeOptions {
 		Bitrate:       96,
 		// Should be LowDelay?
 		Application:      dca.AudioApplicationAudio,
-		CompressionLevel: 5,
+		CompressionLevel: 1,
 		PacketLoss:       1,
 		BufferedFrames:   200,
 		VBR:              true,
-		Threads:          2,
+		Threads:          4,
 	}
 }
 
@@ -37,7 +40,10 @@ func (s *dcaSession) playFromDCA() {
 
 	for {
 		select {
-		case <-streamNaturalEnd:
+		case e := <-streamNaturalEnd:
+			if debug {
+				fmt.Println(e)
+			}
 			s.dca.Stop()
 			s.dca.Cleanup()
 
